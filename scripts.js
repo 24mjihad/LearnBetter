@@ -7,8 +7,13 @@ el.className = el.className.replace(name,'');
 }
 
 
-const words = 'emerged during this period and influenced China and its neighbors for centuries to come. In the third century BCE, Qins wars of unification created the first Chinese empire, the short-lived Qin dynasty'.split(" ");
+var words = 'emerged during this period and influenced China and its neighbors for centuries to come. In the third century BCE, Qins wars of unification created the first Chinese empire, the short-lived Qin dynasty'.split(" ");
 wordcount = words.length;
+const gameTime = 30 * 1000;
+window.timer = null;
+window.gameStart = null;
+
+
 function formatWord(word) {
     return `<div class="word"><span class="letter">${word.split('').join(`</span><span class='letter'>`)}</div>`;
 }
@@ -24,17 +29,68 @@ function newGame() {
     addClass(document.querySelector('.word'), 'current');
     addClass(document.querySelector('.letter'), 'current');
 }
+
+function getWpm() {
+    var words = [...document.querySelectorAll('.word')];
+    var lastTypeWord = document.querySelector('.word.current');
+    var lastTypeWordIndex = words.indexOf(lastTypeWord);
+    var typedWords = words.slice(0, lastTypeWordIndex)
+    var correctWords = typedWords.filter(word =>{
+        const letters = [...word.children];
+        const incorrectLetters = letters.filter(letter => letter.className.includes('incorrect'));
+        const correctLetters = letters.filter(letter => letter.className.includes('correct'));
+        return incorrectLetters.length === 0 && correctLetters.length === letters.length;
+    })
+    return  correctWords.length/gameTime * 60000;
+}
+
+function gameOver() {
+    clearInterval(window.timer);
+    addClass(document.getElementById('game'), 'over');
+    document.getElementById("info").innerHTML = `WPM: ${getWpm()}`;
+}
 document.getElementById('game').addEventListener('keyup', ev => {
     const key = ev.key;
-    const currentWord = document.querySelector('.word.current')
-    const currentLetter = document.querySelector('.letter.current')
+    var currentWord = document.querySelector('.word.current')
+    var currentLetter = document.querySelector('.letter.current')
     const expected = currentLetter?.innerHTML || ' ';
     const isLetter = key.length === 1 && key !== ' ';
     const isSpace = key === ' ';
+    const isBackSpace = key === 'Backspace';
+    const isFirstLetter = currentLetter === currentWord.firstChild;
+    
+    
+    if (document.querySelector('#game.Over')) {
+        return;
+    }
+
 
     console.log({key,expected});
 
-    if (isLetter) {
+if (!window.timer && isLetter) {
+    window.timer = setInterval(() => {
+        if (!window.gameStart) {
+            window.gameStart = (new Date()).getTime();
+        }
+        const currentTime = (new Date()).getTime();
+        const msPassed = currentTime - window.gameStart;
+        const sPassed = Math.round(msPassed / 1000);
+        document.getElementById('info').innerHTML = sPassed + '';
+    }, 1000)
+}
+var words = [...document.querySelectorAll('.word')];
+var lastTypeWord = document.querySelector('.word.current');
+var lastTypeWordIndex = words.indexOf(lastTypeWord);
+var typedWords = words.slice(0, lastTypeWordIndex)
+//currentWord === lastWord && currentLetter === lastLetter
+const lastWord = words[(words.length) - 1];
+const lastLetter = lastWord.charAt((lastWord.length) -1)
+
+if  (currentWord.lastChild = 'd') {
+    console.log((lastTypeWord));
+}
+
+if (isLetter) {
         if(currentLetter) {
             addClass(currentLetter, key === expected ? 'correct' : 'incorrect');
             removeClass(currentLetter, 'current');
@@ -61,6 +117,28 @@ if (isSpace) {
         removeClass(currentLetter, 'current');
     }
     addClass(currentWord.nextSibling.firstChild, 'current');
+}
+
+if (isBackSpace) {
+    if(currentLetter && isFirstLetter) {
+        removeClass(currentWord, 'current');
+        addClass(currentWord.previousSibling, 'current');
+        removeClass(currentLetter, 'current');
+        addClass(currentWord.previousSibling.lastChild, 'current')
+        removeClass(currentWord.previousSibling.lastChild, 'incorrect');
+        removeClass(currentWord.previousSibling.lastChild, 'correct');
+    }
+    if(currentLetter && !isFirstLetter) {
+        removeClass(currentLetter, 'current');
+        addClass(currentLetter.previousSibling, 'current');
+        removeClass(currentLetter.previousSibling, 'incorrect');
+        removeClass(currentLetter.previousSibling, 'correct');
+    }
+    if (!currentLetter) {
+        addClass(currentWord.lastChild, 'current');
+        removeClass(currentWord.lastChild, 'incorrect');
+        removeClass(currentWord.lastChild, 'correct');
+    }
 }
 
 // move cursor

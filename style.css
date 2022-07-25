@@ -113,3 +113,16 @@ position: relative;
 div#game:focus {
     outline: 0;
 }
+
+#game.over #words{
+    filter:blur(0px);
+    opacity: .5;
+}
+
+#game.over:focus #cursor {
+    display: none;
+}
+
+#game.over #focus-error {
+    display: none;
+}
