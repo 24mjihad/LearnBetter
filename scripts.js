@@ -78,17 +78,6 @@ document.getElementById('game').addEventListener('keyup', ev => {
             document.getElementById('info').innerHTML = sPassed + '';
         }, 1000)
     }
-    var words = [...document.querySelectorAll('.word')];
-    var lastTypeWord = document.querySelector('.word.current');
-    var lastTypeWordIndex = words.indexOf(lastTypeWord);
-    var typedWords = words.slice(0, lastTypeWordIndex)
-    //currentWord === lastWord && currentLetter === lastLetter
-    const lastWord = words[(words.length) - 1];
-    const lastLetter = lastWord.charAt((lastWord.length) - 1)
-
-    if (currentWord.lastChild = 'd') {
-        console.log((lastTypeWord));
-    }
 
     if (isLetter) {
         if (currentLetter) {
